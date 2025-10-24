@@ -31,21 +31,46 @@ app.get('/result/:jobId', async (req, res) => {
 });
 
 // GET endpoint: fetch result for a given jobId
-app.get('/result/:jobId', async (req, res) => {
-  try {
-    const { jobId } = req.params;
-    const output = await redisClient.get(`result:${jobId}`);
+// app.get('/result/:jobId', async (req, res) => {
+//   try {
+//     const { jobId } = req.params;
+//     const output = await redisClient.get(`result:${jobId}`);
 
-    if (!output) {
-      return res.json({ jobId, status: 'pending' });
+//     if (!output) {
+//       return res.json({ jobId, status: 'pending' });
+//     }
+
+//     res.json({ jobId, status: 'done', output });
+//   } catch (err) {
+//     console.error('Error fetching result:', err);
+//     res.status(500).json({ error: err.message || 'Server error' });
+//   }
+// });
+
+// POST endpoint: submit Python code job
+app.post('/run-python', async (req, res) => {
+  try {
+    const { code } = req.body;
+    if (!code) {
+      return res.status(400).json({ error: 'No code provided' });
     }
 
-    res.json({ jobId, status: 'done', output });
+    const jobId = uuidv4();
+
+    // Create job object
+    const job = { jobId, code };
+
+    // Add job to Redis queue
+    await redisClient.lPush('jobQueue', JSON.stringify(job));
+
+    // Respond with jobId for polling
+    res.json({ jobId });
   } catch (err) {
-    console.error('Error fetching result:', err);
+    console.error('Error submitting job:', err);
     res.status(500).json({ error: err.message || 'Server error' });
   }
 });
+
 
 // Start server
 const port = 3001;

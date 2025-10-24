@@ -4,6 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "start": "concurrently \"node server.js\" \"node worker.js\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -15,6 +16,10 @@
     "cors": "^2.8.5",
     "dockerode": "^4.0.9",
     "express": "^5.1.0",
+    "redis": "^5.9.0",
     "y-websocket": "^3.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }
